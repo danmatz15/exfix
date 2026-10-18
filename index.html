@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>תיקון מספרי טלפון לפורמט User list</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>תיקון מספרי פלאפון לאקסל בפורמט הנכון</h1>
+      <p class="lead">
+        גררו קובץ אקסל עם מספרי טלפון בכל פורמט. המערכת מאתרת את עמודת
+        <b>PHONE NUMBERS / Phone number</b>, ממירה לפורמט בינלאומי כמו
+        <b>972502824442</b>, ושומרת אותם כערכים בלבד (Values) בעמודת Phone number של תבנית User list.
+      </p>
+
+      <section class="card">
+        <div id="dropzone" class="dropzone">
+          <strong>גררו לכאן קובץ Excel</strong>
+          <div class="hint">xlsx / xls / csv</div>
+          <div id="file-label" class="file-label">לא נבחר קובץ</div>
+          <div class="actions">
+            <button id="browse-btn" class="primary" type="button">בחירת קובץ</button>
+          </div>
+          <input id="file-input" type="file" accept=".xlsx,.xls,.csv" hidden />
+        </div>
+      </section>
+
+      <section id="preview-card" class="card" hidden>
+        <div class="stats">
+          <div class="stat">
+            <b id="column-name">—</b>
+            <span>עמודת מקור שזוהתה</span>
+          </div>
+          <div class="stat">
+            <b id="stat-total">0</b>
+            <span>מספרים שנקראו</span>
+          </div>
+          <div class="stat ok">
+            <b id="stat-ok">0</b>
+            <span>תקינים לפורמט</span>
+          </div>
+          <div class="stat bad">
+            <b id="stat-bad">0</b>
+            <span>לא תקינים / כפולים</span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>שורה</th>
+                <th>מקור</th>
+                <th>אחרי המרה</th>
+                <th>סטטוס</th>
+              </tr>
+            </thead>
+            <tbody id="preview-body"></tbody>
+          </table>
+        </div>
+
+        <div class="actions">
+          <button id="download-btn" class="primary" type="button" disabled>
+            הורדת קובץ בפורמט User list
+          </button>
+          <button id="reset-btn" class="ghost" type="button">קובץ אחר</button>
+        </div>
+        <p id="status-box" class="status" hidden></p>
+      </section>
+    </div>
+
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="template-data.js"></script>
+    <script src="phone.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
