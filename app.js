@@ -105,48 +105,53 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
   }
 
+  function isLocalApp() {
+    return location.protocol === "http:" &&
+      (location.hostname === "127.0.0.1" || location.hostname === "localhost");
+  }
+
+  function exportViaLocalServer(filename, rows) {
+    return fetch("/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: filename,
+        rows: rows.map(function (row) {
+          return {
+            phone: row.formatted,
+            firstName: row.firstName || "",
+            lastName: row.lastName || "",
+          };
+        }),
+      }),
+    }).then(function (response) {
+      if (!response.ok) throw new Error("local export unavailable");
+      return response.blob();
+    });
+  }
+
   function downloadOutput() {
     const validRows = currentRows.filter((row) => row.ok);
     if (!validRows.length) return;
 
     const filename = sourceName + "_User_list.xlsx";
-    const payload = {
-      filename: filename,
-      rows: validRows.map(function (row) {
-        return {
-          phone: row.formatted,
-          firstName: row.firstName || "",
-          lastName: row.lastName || "",
-        };
-      }),
-    };
-
     downloadBtn.disabled = true;
     setStatus("יוצר קובץ מתוך התבנית המקורית ומדביק רק Values...", "");
 
-    fetch("/export", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then(function (response) {
-        if (!response.ok) {
-          return response.text().then(function (text) {
-            throw new Error(text || "export failed");
-          });
-        }
-        return response.blob();
-      })
+    const exportPromise = isLocalApp()
+      ? exportViaLocalServer(filename, validRows).catch(function () {
+          return TemplateExport.buildWorkbook(validRows);
+        })
+      : TemplateExport.buildWorkbook(validRows);
+
+    exportPromise
       .then(function (blob) {
         if (!blob || blob.size < 1000) throw new Error("הקובץ שנוצר ריק");
         downloadBlob(blob, filename);
         setStatus("הקובץ ירד. המספרים הודבקו כערכים בלבד בעמודת Phone number.", "ok");
       })
       .catch(function (error) {
-        setStatus(
-          "ההורדה נכשלה. הפעילו את המערכת דרך Start.bat ואז נסו שוב. " + error.message,
-          "bad"
-        );
+        setStatus("ההורדה נכשלה: " + error.message, "bad");
       })
       .then(function () {
         downloadBtn.disabled = validRows.length === 0;
